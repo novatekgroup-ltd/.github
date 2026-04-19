@@ -58,3 +58,6 @@ coverage/
 # Asset uploads (ignore user content, keep folder)
 assets/uploads/*
 !assets/.gitkeep
+
+# APIsec scan results (optional: keep SARIF reports out of version control)
+apisec-results.sarif
