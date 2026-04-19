@@ -1,0 +1,44 @@
+version: '3.8'
+
+# Internal development and testing environment for NovaTek Group documentation site.
+# This compose file is for internal use only and not intended for production deployment.
+
+services:
+  docs:
+    image: nginx:alpine
+    container_name: novatek-docs
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/usr/share/nginx/html:ro
+    restart: unless-stopped
+    networks:
+      - novatek-net
+
+  lint:
+    image: node:18-alpine
+    container_name: novatek-lint
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: >
+      sh -c "npm install -g markdownlint-cli && markdownlint '**/*.md' --ignore node_modules"
+    networks:
+      - novatek-net
+    profiles:
+      - tools
+
+  link-checker:
+    image: lycheeverse/lychee:latest
+    container_name: novatek-link-check
+    volumes:
+      - ./:/input:ro
+    command: --verbose --no-progress --exclude 'example\.com' '/input/**/*.md'
+    networks:
+      - novatek-net
+    profiles:
+      - tools
+
+networks:
+  novatek-net:
+    driver: bridge
