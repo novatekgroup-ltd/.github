@@ -1,0 +1,54 @@
+# ------------------------------------------------------------------------------
+# APIsec Security Scanning Workflow
+# NovaTek Group Ltd – Enterprise API Security
+# ------------------------------------------------------------------------------
+# This workflow triggers automated security scans using APIsec.ai to identify
+# vulnerabilities and logic flaws in APIs before production deployment.
+#
+# To configure:
+# 1. Add secrets to your repository:
+#    - APISEC_USERNAME
+#    - APISEC_PASSWORD
+# 2. Update the "apisec-project" value with your registered project name.
+# ------------------------------------------------------------------------------
+
+name: APIsec Security Scan
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    # Runs every Wednesday at 23:28 UTC
+    - cron: '28 23 * * 3'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  apisec-scan:
+    name: Run APIsec Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write   # Required to upload SARIF results to GitHub
+      actions: read            # Required for private repositories
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run APIsec Scan
+        uses: apisec-inc/apisec-run-scan@025432089674a28ba8fb55f8ab06c10215e772ea
+        with:
+          apisec-username: ${{ secrets.APISEC_USERNAME }}
+          apisec-password: ${{ secrets.APISEC_PASSWORD }}
+          apisec-project: "NovaTek-API"                      # Update with your project name
+          sarif-result-file: "apisec-results.sarif"
+
+      - name: Upload Scan Results to GitHub Security Tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: apisec-results.sarif
+          category: APIsec
