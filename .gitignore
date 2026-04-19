@@ -33,9 +33,10 @@ Thumbs.db
 .idea/
 *.iml
 
-# Build artifacts
+# Build artifacts (ignore contents, but keep directory structure via .gitkeep)
+build/*
+!build/.gitkeep
 dist/
-build/
 *.log
 *.tmp
 
@@ -46,3 +47,14 @@ secrets/
 *.crt
 *.pfx
 config/local.json
+config/local.*
+!config/.gitkeep
+
+# Test coverage
+coverage/
+*.cover
+.nyc_output/
+
+# Asset uploads (ignore user content, keep folder)
+assets/uploads/*
+!assets/.gitkeep
